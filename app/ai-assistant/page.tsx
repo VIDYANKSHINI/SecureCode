@@ -304,9 +304,36 @@ export default function AIAssistantPage() {
     setShowSuggestions(false)
 
     // Simulate AI thinking
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    const response = getAIResponse(messageText)
+let response = ""
+
+try {
+  const apiResponse = await fetch("http://127.0.0.1:8000/review-pr", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      code_content: messageText,
+    }),
+  })
+
+  const data = await apiResponse.json()
+
+  if (data.findings && data.findings.length > 0) {
+    response = data.findings
+      .map(
+        (item: any) =>
+          `🔒 ${item.type}\n\n${item.ai_explanation}\n\n✅ Fix: ${item.recommended_fix}`
+      )
+      .join("\n\n")
+  } else {
+    response = getAIResponse(messageText)
+  }
+} catch (error) {
+  response = getAIResponse(messageText)
+}
     
     const assistantMessage: Message = {
       role: "assistant",

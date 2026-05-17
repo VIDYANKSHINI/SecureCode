@@ -105,27 +105,65 @@ export default function GitHubScannerPage() {
   const [currentLog, setCurrentLog] = useState(0)
   const [results, setResults] = useState<ScanResult[]>([])
 
-  const startScan = () => {
-    if (!repoUrl) return
-    setIsScanning(true)
-    setScanComplete(false)
-    setCurrentLog(0)
-    setResults([])
+const startScan = async () => {
+  if (!repoUrl) return
+
+  setIsScanning(true)
+  setScanComplete(false)
+  setCurrentLog(0)
+  setResults([])
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/scan", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        repo_url: repoUrl,
+      }),
+    })
+
+    const data = await response.json()
+
+    const formattedResults: ScanResult[] = [
+      ...data.custom_results.map((item: any, index: number) => ({
+        type: "vulnerability",
+        severity: item.severity.toLowerCase(),
+        file: item.file || "Unknown File",
+        line: index + 1,
+        message: item.type,
+        code: item.ai_explanation || "Security vulnerability detected",
+      })),
+
+      ...data.secret_results.map((item: any, index: number) => ({
+        type: "secret",
+        severity: item.severity.toLowerCase(),
+        file: item.file || "Unknown File",
+        line: index + 1,
+        message: item.type,
+        code: item.ai_explanation || "Secret detected",
+      })),
+    ]
+
+    setResults(formattedResults)
+    setScanComplete(true)
+  } catch (error) {
+    console.error("Repository scan failed:", error)
+  } finally {
+    setIsScanning(false)
   }
+}
 
-  useEffect(() => {
-    if (isScanning && currentLog < terminalLogs.length) {
-      const timer = setTimeout(() => {
-        setCurrentLog((prev) => prev + 1)
-      }, 500)
-      return () => clearTimeout(timer)
-    } else if (isScanning && currentLog >= terminalLogs.length) {
-      setIsScanning(false)
-      setScanComplete(true)
-      setResults(mockScanResults)
-    }
-  }, [isScanning, currentLog])
+useEffect(() => {
+  if (isScanning && currentLog < terminalLogs.length) {
+    const timer = setTimeout(() => {
+      setCurrentLog((prev) => prev + 1)
+    }, 500)
 
+    return () => clearTimeout(timer)
+  }
+}, [isScanning, currentLog])
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case "critical":
