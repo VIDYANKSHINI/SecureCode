@@ -163,16 +163,48 @@ export default function SecretScannerPage() {
   const [results, setResults] = useState<SecretResult[]>([])
   const [showSecrets, setShowSecrets] = useState<Record<number, boolean>>({})
 
-  const handleScan = () => {
-    if (!code.trim()) return
-    setIsScanning(true)
-    setResults([])
-    
-    setTimeout(() => {
-      setIsScanning(false)
-      setResults(mockResults)
-    }, 2000)
+  const handleScan = async () => {
+  if (!code.trim()) return
+
+  setIsScanning(true)
+  setResults([])
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/review-pr", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        code_content: code,
+      }),
+    })
+
+    const data = await response.json()
+
+    const formattedResults: SecretResult[] = data.findings.map((item: any, index: number) => ({
+      type: item.type,
+      severity: item.severity.toLowerCase(),
+      line: index + 1,
+      value: item.type,
+      maskedValue: "*** detected ***",
+      description: item.ai_explanation || item.message,
+      platform: item.type.includes("AWS")
+        ? "AWS"
+        : item.type.includes("GitHub")
+        ? "GitHub"
+        : item.type.includes("JWT")
+        ? "JWT"
+        : "Secret",
+    }))
+
+    setResults(formattedResults)
+  } catch (error) {
+    console.error("Secret scan failed:", error)
+  } finally {
+    setIsScanning(false)
   }
+}
 
   const loadExample = () => {
     setCode(exampleCode)

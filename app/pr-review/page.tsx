@@ -123,16 +123,44 @@ export default function PRReviewPage() {
   const [isReviewing, setIsReviewing] = useState(false)
   const [results, setResults] = useState<ReviewResult[]>([])
 
-  const handleReview = () => {
-    if (!code.trim()) return
-    setIsReviewing(true)
-    setResults([])
-    
-    setTimeout(() => {
-      setIsReviewing(false)
-      setResults(mockResults)
-    }, 2500)
+const handleReview = async () => {
+  if (!code.trim()) return
+
+  setIsReviewing(true)
+  setResults([])
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/review-pr", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        code_content: code,
+      }),
+    })
+
+    const data = await response.json()
+
+    const formattedResults: ReviewResult[] = data.findings.map((item: any, index: number) => ({
+      type: item.type?.toLowerCase().includes("key") || item.type?.toLowerCase().includes("password")
+        ? "secret"
+        : "security",
+      severity: item.severity.toLowerCase(),
+      file: "PR Changes",
+      line: index + 1,
+      change: "added",
+      description: item.ai_explanation || item.message,
+      suggestion: item.recommended_fix || item.recommendation,
+    }))
+
+    setResults(formattedResults)
+  } catch (error) {
+    console.error("PR review failed:", error)
+  } finally {
+    setIsReviewing(false)
   }
+}
 
   const loadExample = () => {
     setCode(examplePRCode)
