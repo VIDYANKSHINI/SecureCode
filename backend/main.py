@@ -8,6 +8,7 @@ from scanners.custom_scanner import run_custom_scan
 from scanners.secret_scanner import run_secret_scan
 from scanners.score_calculator import calculate_security_score
 from scanners.ai_explainer import explain_findings
+from scanners.pr_review_scanner import review_pull_request
 
 app = FastAPI()
 
@@ -23,6 +24,8 @@ app.add_middleware(
 # Request Model
 class RepoScanRequest(BaseModel):
     repo_url: str
+class PRReviewRequest(BaseModel):
+    code_content: str
 
 # Home Endpoint
 @app.get("/")
@@ -72,4 +75,17 @@ def scan_repository(data: RepoScanRequest):
         "custom_results": custom_results,
         "ai_explanations": ai_explanations,
         "secret_results": secret_results
+    }
+
+@app.post("/review-pr")
+def review_pr(data: PRReviewRequest):
+
+    findings = review_pull_request(data.code_content)
+
+    ai_review = explain_findings(findings)
+
+    return {
+        "status": "success",
+        "total_issues": len(findings),
+        "findings": ai_review
     }
