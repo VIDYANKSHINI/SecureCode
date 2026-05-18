@@ -1,432 +1,144 @@
-# SecureBob AI 🚀
+# SecureCode — Secure Bob AI App
 
-## Scan Before You Push.
+SecureCode is an integrated code security analysis suite that combines automated scanners and AI-powered explanations to help developers find, prioritize, and remediate security issues earlier in the development lifecycle.
 
-SecureBob AI is an AI-powered DevSecOps security assistant built using IBM watsonx.ai and Granite foundation models that helps developers identify vulnerabilities, exposed secrets, insecure configurations, and risky pull request changes before insecure code reaches production.
+## Problem
 
-The platform combines AI reasoning, cybersecurity awareness, and beginner-friendly explanations into one intelligent security analysis system designed for students, developers, startups, and hackathon teams.
+Modern development workflows move fast. Security tools are often fragmented, produce noisy findings, and leave developers unsure how to fix issues. This results in delayed remediation and higher risk in production.
 
----
+## Solution
 
-# 🌟 Problem Statement
+SecureCode provides a unified web interface and backend scanners that analyze repositories for vulnerabilities, secrets, and risky code patterns, and uses AI to explain findings in actionable language. The app bundles multiple scanning strategies and prioritizes results so teams can act quickly.
 
-Modern developers frequently push insecure code to repositories without realizing the security risks involved.
+## Features
 
-## Common Issues
+- Multi-scanner support: secret detection, static analyzers, custom scanners, and PR review helpers.
+- AI explanations: natural-language descriptions and remediation suggestions for findings.
+- Prioritization and scoring: aggregate risk scores to focus on critical issues first.
+- Repository cloning and on-demand scanning for PRs or full repo audits.
+- Lightweight dashboard and per-scan report export.
 
-* Hardcoded API keys
-* Exposed credentials
-* SQL injection vulnerabilities
-* Weak JWT secrets
-* Open CORS configurations
-* Insecure authentication flows
-* Unsafe file upload handling
+## Tech Stack
 
-## Problems With Traditional Security Tools
+- Frontend: Next.js, React, TypeScript
+- Backend: Python (scripts in `backend/`) for scanners and scoring
+- Scanners: semgrep, custom Python scanners, secret detection logic
+- Dev tooling: pnpm (frontend), virtualenv or venv for Python
 
-* Difficult for beginners
-* Too technical
-* Expensive
-* Require cybersecurity expertise
+## System architecture
 
-As a result, vulnerable code and exposed secrets reach public repositories and production systems, increasing the risk of:
+High level:
 
-* Data breaches
-* API abuse
-* Unauthorized access
-* Security attacks
+- The Next.js frontend delivers the UI and calls backend APIs for scan requests and results.
+- A Python backend orchestrates repository cloning, runs scanner modules under `backend/scanners/`, and computes scores.
+- Scans are persisted temporarily to `temp_repo/` and results are returned to the frontend for display and AI explanation.
 
----
+Architecture diagram (generated):
 
-# 💡 Solution
+![Architecture](docs/images/architecture.svg)
 
-SecureBob AI acts as an AI-powered cybersecurity reviewer that scans repositories, source code, and pull requests to identify vulnerabilities and explain security risks in simple language.
+High-level flow:
 
-Using IBM Granite foundation models on watsonx.ai, the system provides:
-
-* Intelligent vulnerability analysis
-* Secret leak detection
-* AI-powered explanations
-* Pull request security reviews
-* Security improvement recommendations
-
-The goal is to make cybersecurity understandable and accessible for developers of all skill levels.
-
----
-
-# 🔥 Key Features
-
-## 1. GitHub Repository Scanner
-
-Analyze repositories to:
-
-* Inspect project structure
-* Detect insecure coding practices
-* Identify risky configurations
-* Scan for exposed secrets
-
-### Detects
-
-* Exposed `.env` files
-* Hardcoded credentials
-* Insecure dependencies
-* Weak authentication logic
-* Dangerous configurations
-
----
-
-## 2. Vulnerability Detection
-
-SecureBob AI detects common vulnerabilities including:
-
-### SQL Injection
-
-```python
-query = "SELECT * FROM users WHERE name='" + user_input + "'"
+```
+[Browser] -> [Next.js Frontend] -> [API] -> [Python Backend]
+                                     |
+                                     -> [Repo Cloner] -> [Scanners: semgrep, secret_scanner, custom_scanner]
+                                     -> [Score Calculator] -> [Results / AI Explainer]
 ```
 
-### Cross-Site Scripting (XSS)
+## Setup
 
-```javascript
-element.innerHTML = userInput;
+Prerequisites:
+
+- Node.js (16+), pnpm
+- Python 3.10+ and virtualenv (or venv)
+- Optional: semgrep installed if you plan to use it locally
+
+Quick start (development):
+
+1. Clone the repository
+
+```bash
+git clone <repo-url>
+cd SecureCode
 ```
 
-### Hardcoded Credentials
+2. Frontend: install and run
 
-```python
-password = "admin123"
+```bash
+pnpm install
+pnpm dev
 ```
 
-### Open CORS Policies
+3. Backend: create a virtual environment and run the backend scanner service
 
-```javascript
-app.use(cors({ origin: "*" }))
+```bash
+python -m venv .venv
+source .venv/Scripts/activate    # Windows: .venv\\Scripts\\activate
+pip install -r backend/requirements.txt || pip install -r requirements.txt
+python backend/main.py
 ```
 
-### Weak JWT Configurations
+- Notes:
 
-```javascript
-jwt.sign(data, "secret")
+- A generated `backend/requirements.txt` is included with the core backend dependencies used by the project (FastAPI, Pydantic, GitPython, semgrep, uvicorn).
+- If you need additional AI SDKs (e.g., OpenAI or IBM SDKs) for cloud integrations, tell me and I will add them to `requirements.txt`.
+- The frontend runs on `http://localhost:3000` by default and will call the backend API endpoints.
+
+## Usage
+
+- Open the app in your browser at `http://localhost:3000`.
+- Use the repository scanner UI to provide a GitHub URL or upload a repository snapshot.
+- Start a scan, review findings in the dashboard, and click into items for AI-powered explanations and suggested fixes.
+
+## Screenshots
+
+Add screenshots to `public/screenshots/` and embed them here. Example:
+
+```markdown
+![Dashboard](public/screenshots/dashboard.svg)
+![Scan report](public/screenshots/scan-report.svg)
 ```
 
-### Unsafe File Uploads
-
-```python
-file.save(upload_path)
-```
-
-### Authentication Flaws
-
-* Missing authorization checks
-* Insecure session handling
-* Weak password validation
-
----
-
-## 3. AI-Powered Explanations
-
-Instead of displaying only technical security reports, SecureBob AI explains vulnerabilities in beginner-friendly language.
-
-### Example
-
-> “A hacker may manipulate your database because user input is directly inserted into the SQL query without validation.”
-
-This helps students and beginner developers understand cybersecurity concepts more effectively.
-
----
-
-## 4. Secret Leak Detection
-
-SecureBob AI detects accidentally exposed:
-
-* API keys
-* AWS credentials
-* JWT secrets
-* Firebase credentials
-* Passwords
-* GitHub tokens
-
-### Example
-
-```env
-OPENAI_API_KEY=sk-xxxxxxxx
-```
-
-### AI Warning
-
-🚨 Critical Secret Leak Detected
-
-Exposed credentials may allow attackers to misuse services or access sensitive systems.
-
----
-
-## 5. Security Score Dashboard
-
-Provides:
-
-* Overall security score
-* Vulnerability statistics
-* Risk analytics
-* Improvement recommendations
-
-### Example
-
-```txt
-Security Score: 72/100
-Critical: 2
-High: 4
-Medium: 3
-Low: 1
-```
-
----
-
-## 6. Pull Request Security Review
-
-Analyzes pull requests and modified code to identify:
-
-* Newly introduced vulnerabilities
-* Exposed secrets
-* Insecure logic
-* Risky code changes
-
-### Example
-
-```python
-API_KEY = "secret123"
-```
-
-### AI Response
-
-🚨 Pull Request Risk Detected
-
-A sensitive API key was introduced in this commit. Move credentials to environment variables immediately.
-
----
-
-# 🧠 IBM Technologies Used
-
-## IBM watsonx.ai
-
-Used for:
-
-* AI inference
-* Intelligent reasoning
-* Prompt orchestration
-* Security analysis workflows
-
-## IBM Granite Foundation Models
-
-Used for:
-
-* Vulnerability reasoning
-* Secret detection
-* Risk explanation
-* Remediation suggestions
-
----
-
-# 🏗️ System Architecture
-
-```txt
-User
- ↓
-Frontend Dashboard (Next.js)
- ↓
-FastAPI Backend
- ↓
-IBM watsonx.ai
- ↓
-Granite Foundation Model
- ↓
-AI Security Analysis
- ↓
-Frontend Security Dashboard
-```
-
----
-
-# ⚙️ Tech Stack
-
-## Frontend
-
-* Next.js
-* Tailwind CSS
-* shadcn/ui
-* Framer Motion
-
-## Backend
-
-* FastAPI
-* Python
-
-## AI Layer
-
-* IBM watsonx.ai
-* Granite foundation models
-
-## APIs
-
-* GitHub REST API
+The repository contains placeholder images at `public/screenshots/` to help you replace them with real captures.
 
 ## Deployment
 
-* Vercel (Frontend)
-* Render / Railway (Backend)
+Docker (backend):
 
----
+1. Build the backend image from the project root:
 
-# 🔄 Workflow
-
-## Step 1
-
-User:
-
-* Pastes code
-* Uploads files
-* Submits GitHub repository URL
-
-## Step 2
-
-Frontend sends repository/code data to FastAPI backend.
-
-## Step 3
-
-Backend creates structured AI security prompts.
-
-## Step 4
-
-IBM Granite analyzes:
-
-* Vulnerabilities
-* Exposed secrets
-* Risky configurations
-* Authentication flaws
-
-## Step 5
-
-AI returns:
-
-* Severity levels
-* Explanations
-* Secure coding fixes
-* Security recommendations
-
-## Step 6
-
-Frontend displays interactive security reports and analytics.
-
----
-
-# 📊 Sample AI Output
-
-```json
-[
-  {
-    "issue": "SQL Injection",
-    "severity": "High",
-    "explanation": "Unsanitized user input used directly in SQL query.",
-    "fix": "Use parameterized queries."
-  }
-]
+```bash
+docker build -t securecode-backend -f backend/Dockerfile .
 ```
 
----
+2. Run the backend (example):
 
-# 🎯 Target Users
+```bash
+docker run -p 8000:8000 securecode-backend
+```
 
-* Students
-* Beginner developers
-* Open-source contributors
-* Startup teams
-* Hackathon participants
-* Junior engineers
+The FastAPI app can then be served with `uvicorn backend.main:app --host 0.0.0.0 --port 8000` inside the container.
 
----
+Vercel (frontend):
 
-# 🚀 Future Scope
+- Push the frontend to a Git provider (GitHub/GitLab). Connect the repo to Vercel and set environment variables as needed. The Next.js app will be deployed automatically; configure the API_BASE_URL to point to your backend instance.
 
-## GitHub Integration
+If you want, I can generate a `backend/Dockerfile` and a `Docker Compose` example next.
 
-Automatic repository monitoring and scanning.
+## Demo
 
-## VS Code Extension
+- Live demo: (optional) add a hosted URL here when available.
+- Local demo: run frontend and backend as above and scan a small public repo to see results.
 
-Real-time vulnerability detection while coding.
+## Team
 
-## CI/CD Security Integration
+- Maintainers: add your names and contact info here.
+- Contributions: please open pull requests and describe changes clearly.
 
-Pre-deployment security validation.
+## License
 
-## Enterprise Team Dashboards
-
-Organization-level security monitoring.
-
-## AI Secure Code Rewrite
-
-Automatically rewrite insecure code securely.
-
----
-
-# 🛡️ Competitive Advantage
-
-Unlike traditional security tools, SecureBob AI focuses on:
-
-* Beginner accessibility
-* Explainable AI security analysis
-* Modern user experience
-* Educational cybersecurity assistance
-
-The platform bridges the gap between:
-
-* Cybersecurity tooling
-* Beginner developers
-
----
-
-# 👥 Team Structure
-
-## Member 1 — Frontend Lead
-
-### Responsibilities
-
-* UI/UX
-* Dashboard
-* Frontend integration
-* Animations
-
-## Member 2 — Backend + IBM AI Lead
-
-### Responsibilities
-
-* FastAPI backend
-* IBM watsonx integration
-* Granite prompts
-* API development
-
-## Member 3 — Security + Presentation Lead
-
-### Responsibilities
-
-* OWASP research
-* Vulnerability testing
-* Documentation
-* Deployment
-* Demo preparation
-
----
-
-# 🎥 Demo Flow
-
-1. User pastes vulnerable code or repository URL
-2. SecureBob AI scans using IBM Granite models
-3. AI detects vulnerabilities and exposed secrets
-4. Dashboard displays:
-
-   * Issue type
-   * Severity
-   * Explanation
-   * Secure remediation steps
+This project is provided under the MIT License — update this section to match your preferred license and include a `LICENSE` file.
 
 ---
 
