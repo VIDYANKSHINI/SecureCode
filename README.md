@@ -1,181 +1,223 @@
-# SecureBob AI — Scan Before You Push
+# SecureBob AI — Enterprise Code Security Suite
 
-SecureBob AI is a premium, next-generation code security analysis suite. It combines automated vulnerability scanners and enterprise-grade AI-powered explanations to help developers find, prioritize, and remediate security issues earlier in the development lifecycle—long before they reach production.
+SecureBob AI is a production-grade, next-generation code security analysis suite. It combines automated static application security testing (SAST), regex-based secret scanners, and enterprise-grade AI-powered explanations to help developers find, prioritize, and remediate security issues earlier in the software development lifecycle (SDLC).
 
-Powered by **IBM watsonx.ai** and **IBM Granite foundation models for code**, SecureBob AI acts as an intelligent security guardian for modern engineering teams.
-
----
-
-## Key Features
-
-SecureBob AI integrates six powerful modules into a unified, high-performance security platform:
-
-### 1. GitHub Repository Scanner (`/github-scanner`)
-* Clone and scan any public or private GitHub repository on-demand.
-* Analyze full repository history and files to identify potential security exposures.
-
-### 2. AI-Powered Vulnerability Detection (`/vulnerability-scanner`)
-* Detects SQL injection, Cross-Site Scripting (XSS), insecure deserialization, and other OWASP Top 10 vulnerabilities.
-* Context-aware scanning of code snippets with real-time feedback.
-
-### 3. Secret Leak Detection (`/secret-scanner`)
-* Scans files for exposed API keys, JWT secrets, AWS credentials, database strings, and passwords.
-* Uses precise regex profiling combined with entropy analysis to avoid false positives.
-
-### 4. Pull Request Security Review (`/pr-review`)
-* Automatically inspects incoming PRs for newly introduced vulnerabilities and secret leaks.
-* Provides a diff-focused security review to protect the main codebase.
-
-### 5. Security Score Dashboard (`/security-dashboard`)
-* View real-time security postures, aggregate risk ratings, and security scores.
-* Track vulnerability trends, severity distribution, and history logs.
-
-### 6. AI Security Assistant (`/ai-assistant`)
-* An interactive conversational chatbot powered by **IBM Granite** code-trained models.
-* Provides instant security guidance, vulnerability explanations, and refactored secure code suggestions.
+Leveraging IBM watsonx.ai and IBM Granite foundation models for code, SecureBob AI provides developer-centric explanations and refactored secure code suggestions directly alongside raw scanner findings.
 
 ---
 
-## Technology Stack
+## Technical Capabilities
 
-SecureBob AI uses a premium, cutting-edge technology stack engineered for high performance, visual brilliance, and security:
+SecureBob AI orchestrates six integrated capabilities designed to secure modern codebases:
+
+1. **GitHub Repository Scanner**: Programmatic cloning and auditing of public or private git repositories using GitPython, providing comprehensive vulnerability detection across branches.
+2. **Vulnerability Detection (SAST)**: Automated rulesets detecting SQL injection, Cross-Site Scripting (XSS), insecure deserialization, and other OWASP Top 10 vulnerabilities.
+3. **Secret Leak Detection**: Static scanning engines mapping exposed high-entropy secrets including API keys, JWT tokens, AWS credentials, and database connection strings.
+4. **Pull Request Security Review**: Staged code checking that intercepts code diffs in Pull Requests and identifies newly introduced security liabilities before they merge.
+5. **Security Score Dashboard**: Aggregate threat severity weighing that computes a unified, real-time security posture score, listing severity counts and historical risk curves.
+6. **AI Security Assistant**: Conversational agent powered by IBM Granite models providing immediate secure coding recommendations, custom refactoring, and educational walk-throughs.
+
+---
+
+## Technical Stack
 
 * **Frontend**: Next.js 16 (App Router), React 19, TypeScript
-* **Styling & UI**: Tailwind CSS v4, Radix UI primitives (shadcn/ui), Lucide icons
-* **Animations**: Framer Motion for smooth micro-animations and cybernetic UI transitions
-* **AI Core**: IBM watsonx.ai platform & IBM Granite code foundation models
-* **Scanning Engine**: Custom Regex Engines, Semgrep rulesets, and AST parser hooks
-* **Package Manager**: `pnpm` (fast, space-efficient dependency management)
+* **Styling**: Tailwind CSS v4, Radix UI primitive systems (shadcn/ui), Lucide icons
+* **Animations**: Framer Motion for hardware-accelerated micro-animations and smooth page transitions
+* **Backend**: Python 3.10+, FastAPI, Pydantic, GitPython
+* **Scanning Engine**: Custom regex profile scanners and Semgrep CLI rulesets
+* **AI Core Orchestrator**: IBM watsonx.ai platform and IBM Granite code foundation models
+* **Package Management**: pnpm (fast, deterministic node package manager)
 
 ---
 
 ## System Architecture
 
-SecureBob AI splits responsibilities between a rich, reactive client interface and a high-performance scanning coordinator powered by Watsonx:
+The architecture decouples the highly responsive Next.js frontend from the high-throughput Python FastAPI scanning service, delegating model execution to IBM watsonx.ai:
 
 ```mermaid
-graph TD
-    User([Developer / Security Team]) -->|Interacts| UI[Next.js 16 Frontend /app]
+graph LR
+    User(["Developer / Security Team"]) -->|Interacts| UI["Next.js 16 Frontend (App Router)"]
     
-    subgraph Frontend [Next.js App & UI]
-        UI --> Dashboard[/security-dashboard]
-        UI --> Scanner[/github-scanner]
-        UI --> Assistant[/ai-assistant]
+    subgraph Client ["Client Layer (Next.js & React 19)"]
+        UI --> Dashboard["Vulnerability Dashboard (/security-dashboard)"]
+        UI --> Scanner["Code & Git Scanner (/github-scanner)"]
+        UI --> Assistant["AI Assistant Chat (/ai-assistant)"]
     end
 
-    subgraph Security Coordinator & Engines
-        Scanner -->|Trigger Scan| Orchestrator[Python Scan Coordinator]
-        Orchestrator -->|Git Clone| RepoCloner[Repo Cloner / Temp Storage]
-        RepoCloner -->|Static Analysis| SemgrepEngine[Semgrep Scanner]
-        RepoCloner -->|Pattern Matching| SecretEngine[Secret & Key Scanner]
+    subgraph Backend ["Scanning & Orchestration (FastAPI)"]
+        Scanner -->|POST /scan| Orchestrator["Scan Orchestrator (main.py)"]
+        Orchestrator -->|Clones Repo| RepoCloner["Git Repo Cloner (clone_repo.py)"]
+        
+        RepoCloner --> Semgrep["Semgrep Engine (semgrep_scanner.py)"]
+        RepoCloner --> Secrets["Secret Engine (secret_scanner.py)"]
+        RepoCloner --> Custom["Custom Rules (custom_scanner.py)"]
+        
+        Semgrep -->|Raw Logs| ScoreCalc["Score Calculator (score_calculator.py)"]
+        Secrets -->|Leaked Keys| ScoreCalc
+        Custom -->|Custom Hits| ScoreCalc
     end
 
-    subgraph IBM Enterprise AI Pipeline
-        Assistant -->|Queries / Code Explanation| Watsonx[IBM watsonx.ai Platform]
-        SemgrepEngine -->|Raw Findings| Watsonx
-        Watsonx -->|Granite Models| ExplanationEngine[AI Security Assistant]
-        ExplanationEngine -->|Remediation & Score| UI
+    subgraph AI ["AI Intelligence Layer (IBM watsonx.ai)"]
+        Assistant -->|REST API Query| Watsonx["IBM watsonx.ai Platform"]
+        ScoreCalc -->|Aggregated Findings| Watsonx
+        Watsonx -->|IBM Granite LLM| AIExplainer["AI Explainer (ai_explainer.py)"]
+        AIExplainer -->|Remediation & Fixes| UI
     end
     
-    classDef frontend fill:#1e293b,stroke:#0ea5e9,stroke-width:2px,color:#fff;
-    classDef backend fill:#1e1b4b,stroke:#8b5cf6,stroke-width:2px,color:#fff;
-    classDef ai fill:#062f4f,stroke:#10b981,stroke-width:2px,color:#fff;
-    class UI,Dashboard,Scanner,Assistant frontend;
-    class Orchestrator,RepoCloner,SemgrepEngine,SecretEngine backend;
-    class Watsonx,ExplanationEngine ai;
+    classDef clientStyle fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef backendStyle fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef aiStyle fill:#062f4f,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+    
+    class UI,Dashboard,Scanner,Assistant clientStyle;
+    class Orchestrator,RepoCloner,Semgrep,Secrets,Custom,ScoreCalc backendStyle;
+    class Watsonx,AIExplainer aiStyle;
 ```
 
 ---
 
-## Project Structure
+## Scanning Engine & Backend Services
+
+The core analytical capabilities reside within `backend/scanners/`, driven by a lightweight FastAPI server:
+
+* **Semgrep Scanner (`semgrep_scanner.py`)**: Runs local Semgrep rulesets targeting target directories. Focuses on insecure coding patterns, framework-specific misconfigurations, and standard security bugs.
+* **Secret Scanner (`secret_scanner.py`)**: Executes scanning targeting keys and access tokens. Runs high-entropy character analysis coupled with precise pattern-matching regex profiles.
+* **Custom Scanner (`custom_scanner.py`)**: Implements rule-based lexical matching for common insecure APIs, custom team guidelines, and quick-check rules.
+* **Score Calculator (`score_calculator.py`)**: Scores finding counts, severities (Critical, High, Medium, Low), and computes a consolidated Security Dashboard Score (out of 100).
+* **AI Explainer (`ai_explainer.py`)**: Bridges the raw JSON findings with the IBM watsonx.ai Granite models to yield remediation descriptions, insecure vs. secure code comparisons, and threat descriptions.
+* **PR Review Scanner (`pr_review_scanner.py`)**: Performs automated reviews on direct code diff strings, returning inline security assessments.
+
+---
+
+## Project Directory Layout
 
 ```filepath
 secure-bob-ai-app/
-├── app/                      # Next.js 16 App Router Routes
-│   ├── ai-assistant/         # AI Chat and Remediation Assistant
-│   ├── features/             # Feature Overview Page
-│   ├── github-scanner/       # Git Repository Cloning & Scanning interface
-│   ├── pr-review/            # PR Code Diff Security Checking
-│   ├── secret-scanner/       # Secret and API Key Detection UI
-│   ├── security-dashboard/   # Real-time Metrics and Vulnerability Analytics
-│   ├── vulnerability-scanner/# SAST & OWASP Top 10 Analyzer UI
-│   ├── globals.css           # Tailwind v4 Global Styles
-│   ├── layout.tsx            # Main Application Layout
-│   └── page.tsx              # Cyber-inspired Landing Page
-├── components/               # Reusable UI & Layout Components
-│   ├── ui/                   # Base Radix Primitives (Buttons, Dialogs, Cards)
-│   ├── cyber-background.tsx  # Interactive glowing background animation
-│   ├── terminal-animation.tsx# Immersive typewriter terminal visualization
-│   ├── navbar.tsx            # Global Navigation Bar
-│   └── footer.tsx            # Footer
-├── hooks/                    # Custom React Hooks
-├── lib/                      # Shared Utilities (cn, formatting)
-├── public/                   # Static assets, logos, and screenshots
-├── styles/                   # Style variables
-├── tsconfig.json             # TypeScript config
-├── package.json              # Client scripts & dependencies
-└── pnpm-lock.yaml            # pnpm lockfile
+├── app/                        # Next.js 16 App Router Pages
+│   ├── ai-assistant/           # AI Security Assistant Interface
+│   ├── features/               # Security Features Showcase
+│   ├── github-scanner/         # GitHub Repository Scanner Dashboard
+│   ├── pr-review/              # PR Diff Review Interface
+│   ├── secret-scanner/         # Secret and Credential Leaks UI
+│   ├── security-dashboard/     # Unified Posture Dashboard and Analytics
+│   ├── vulnerability-scanner/  # SAST Insecure Code Scanning UI
+│   ├── globals.css             # Tailwind v4 Global Custom Styles
+│   ├── layout.tsx              # Base Shell and Theme Provider
+│   └── page.tsx                # Cyber-inspired Platform Landing Page
+├── backend/                    # Python FastAPI Scanning Backend
+│   ├── github/                 # Repository cloning modules
+│   │   └── clone_repo.py
+│   ├── scanners/               # Automated Static & AI Explainer Engines
+│   │   ├── ai_explainer.py
+│   │   ├── custom_scanner.py
+│   │   ├── pr_review_scanner.py
+│   │   ├── score_calculator.py
+│   │   ├── secret_scanner.py
+│   │   └── semgrep_scanner.py
+│   ├── main.py                 # FastAPI Web Server Entrypoint
+│   └── requirements.txt        # Backend dependencies
+├── components/                 # Shared React Components
+│   ├── ui/                     # Base Radix primitives (Button, Card, Dialog, Toast)
+│   ├── cyber-background.tsx    # Immersive glowing network grid canvas
+│   ├── terminal-animation.tsx  # Immersive retro terminal scanner simulator
+│   ├── navbar.tsx              # Universal Navigation Header
+│   └── footer.tsx              # Dashboard Footer
+├── docs/                       # Architectural docs & diagrams
+│   └── ARCHITECTURE.md
+├── public/                     # Static assets and scanner screenshots
+├── package.json                # Frontend package configurations
+└── pnpm-lock.yaml              # pnpm locked dependencies
 ```
 
 ---
 
-## Getting Started
+## Local Development Setup
 
-### Prerequisites
-Make sure you have the following installed on your system:
-* **Node.js** (v18.x or above recommended)
-* **pnpm** (`npm install -g pnpm`)
+To run the full SecureBob AI suite locally, start both the Python FastAPI server and the Next.js development server.
 
-### Setup Instructions
+### Backend Setup (Python)
 
-1. **Clone the Repository**
+1. **Navigate to the Backend Directory**:
    ```bash
-   git clone https://github.com/VIDYANKSHINI/SecureCode.git
-   cd secure-bob-ai-app
+   cd backend
    ```
 
-2. **Install Dependencies**
-   Using `pnpm` ensures fast, shared, and deterministic dependency trees.
+2. **Initialize Virtual Environment**:
+   ```bash
+   python -m venv .venv
+   ```
+
+3. **Activate the Virtual Environment**:
+   * Windows:
+     ```powershell
+     .venv\Scripts\activate
+     ```
+   * macOS/Linux:
+     ```bash
+     source .venv/bin/activate
+     ```
+
+4. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. **Start the FastAPI Server**:
+   ```bash
+   uvicorn main:app --reload --host 127.0.0.1 --port 8000
+   ```
+   The backend API documentation is available at `http://127.0.0.1:8000/docs`.
+
+---
+
+### Frontend Setup (Next.js)
+
+1. **Return to the Project Root**:
+   ```bash
+   cd ..
+   ```
+
+2. **Install Node.js Dependencies**:
    ```bash
    pnpm install
    ```
 
-3. **Start the Local Development Server**
+3. **Configure Environment Variables**:
+   Create a `.env.local` file at the root of the project:
+   ```env
+   NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
+   ```
+
+4. **Start the Development Server**:
    ```bash
    pnpm dev
    ```
-   Open your browser and navigate to **`http://localhost:3000`** to view the app!
-
-4. **Building for Production**
-   Verify the Next.js production build and linting:
-   ```bash
-   pnpm build
-   ```
+   Open **`http://localhost:3000`** in your browser to view the application.
 
 ---
 
-## Premium Design Aesthetics
+## Design System & Aesthetics
 
-SecureBob AI utilizes a premium, cyber-inspired design system created to wow users at first glance:
-* **CyberBackground & Glow Effects**: A sleek, animated cybernetic background that breathes life into the application.
-* **Glassmorphism & Neon Gradients**: Cards use custom backdrop-filter styling combined with neon primary and secondary gradients.
-* **Terminal Animation**: Built-in visual sandbox in the landing page showing real-time scanning feedback in retro-terminal styling.
-* **Responsive Layouts**: Fully responsive layouts using Flexbox and Grid systems optimized for desktop, tablet, and mobile screens.
+SecureBob AI utilizes a carefully curated developer aesthetic designed to look premium, modern, and high-tech:
+* **Interactive Glowing Canvas**: Custom background animation simulating data streaming and node layouts.
+* **Refined Dark Mode**: Monochromatic obsidian backdrop colors accented with neon cyber-blue, indigo, emerald, and amber alerts.
+* **Micro-Animations**: Framer Motion orchestrations providing smooth slide-ins, element expansions, and interactive hover feedbacks.
+* **Responsive Layout Grid**: High-fidelity CSS Grid and Flexbox layouts optimized to preserve presentation across diverse viewport resolutions.
 
 ---
 
 ## Hackathon Team
 
-This project was built by a talented trio for the IBM watsonx.ai & Granite match-up:
-* **Alex Chen** — *Frontend Developer* (React, Next.js, and premium UI/UX Specialist)
-* **Sarah Johnson** — *Backend + AI Developer* (Python service and IBM watsonx.ai integrations)
-* **Michael Park** — *Security Research Lead* (Cybersecurity and threat analysis models)
+This project was built for the IBM watsonx.ai & Granite matchup:
+* **Alex Chen** — Frontend Developer (React, Next.js, and premium UI/UX Specialist)
+* **Sarah Johnson** — Backend & AI Developer (Python FastAPI and IBM watsonx.ai integration)
+* **Michael Park** — Security Research Lead (Cybersecurity rulesets and threat model mapping)
 
 ---
 
 ## License
 
-This project is licensed under the **MIT License**. Feel free to use, modify, and distribute it in accordance with the terms.
+This project is licensed under the **MIT License**. For details, see the LICENSE file.
 
 ---
 
