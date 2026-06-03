@@ -1,22 +1,31 @@
 import subprocess
 import json
+import sys
 
 def run_semgrep_scan(repo_path: str):
 
     try:
-
+        # Use sys.executable to run semgrep via python -m semgrep (works better on Windows)
         result = subprocess.run(
             [
-                "python",
-                "-m",
-                "semgrep",
+                sys.executable, "-m", "semgrep",
                 "--config=auto",
                 repo_path,
-                "--json"
+                "--json",
+                "--no-git-ignore"
             ],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=120  # 2 minute timeout to avoid hanging
         )
+
+        # If semgrep returned nothing or errored
+        if not result.stdout.strip():
+            return {
+                "success": False,
+                "error": "Semgrep returned no output. It may not be installed or the scan timed out.",
+                "findings": []
+            }
 
         output = json.loads(result.stdout)
 
@@ -38,9 +47,30 @@ def run_semgrep_scan(repo_path: str):
             "findings": simplified_results
         }
 
-    except Exception as e:
-
+    except subprocess.TimeoutExpired:
         return {
             "success": False,
-            "error": str(e)
+            "error": "Semgrep scan timed out after 120 seconds.",
+            "findings": []
+        }
+
+    except json.JSONDecodeError:
+        return {
+            "success": False,
+            "error": "Semgrep output could not be parsed. Check if semgrep is installed correctly.",
+            "findings": []
+        }
+
+    except FileNotFoundError:
+        return {
+            "success": False,
+            "error": "Semgrep is not installed. Run: pip install semgrep",
+            "findings": []
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "findings": []
         }
