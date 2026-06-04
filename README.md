@@ -209,9 +209,9 @@ SecureBob AI utilizes a carefully curated developer aesthetic designed to look p
 ## Hackathon Team
 
 This project was built for the IBM watsonx.ai & Granite matchup:
-* **Alex Chen** — Frontend Developer (React, Next.js, and premium UI/UX Specialist)
-* **Sarah Johnson** — Backend & AI Developer (Python FastAPI and IBM watsonx.ai integration)
-* **Michael Park** — Security Research Lead (Cybersecurity rulesets and threat model mapping)
+* **Vidyankshini Vibhute** — Frontend Developer (React, Next.js, and premium UI/UX Specialist)
+* **Satyam Kulkarni** — Backend & AI Developer (Python FastAPI and IBM watsonx.ai integration)
+* **Siya Kale** — Security Research Lead (Cybersecurity rulesets and threat model mapping)
 
 ---
 
