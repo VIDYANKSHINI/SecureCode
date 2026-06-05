@@ -6,12 +6,9 @@ from github.clone_repo import clone_repository
 from scanners.semgrep_scanner import run_semgrep_scan
 from scanners.custom_scanner import run_custom_scan
 from scanners.secret_scanner import run_secret_scan
-<<<<<<< HEAD
-=======
 from scanners.score_calculator import calculate_security_score
 from scanners.ai_explainer import explain_findings
 from scanners.pr_review_scanner import review_pull_request
->>>>>>> 0b108c556266f846c2213b0dac16da52b5e3243b
 
 app = FastAPI()
 
@@ -66,7 +63,6 @@ def scan_repository(data: RepoScanRequest):
    # Step 5: Calculate Security Dashboard
     all_findings = custom_results + secret_results
 
-<<<<<<< HEAD
     for finding in custom_results:
 
         severity = finding["severity"]
@@ -94,10 +90,8 @@ def scan_repository(data: RepoScanRequest):
 
     if security_score < 0:
         security_score = 0
-=======
     dashboard_data = calculate_security_score(all_findings)
     ai_explanations = explain_findings(all_findings)
->>>>>>> 0b108c556266f846c2213b0dac16da52b5e3243b
 
     return {
         "status": "success",
@@ -106,9 +100,7 @@ def scan_repository(data: RepoScanRequest):
         "dashboard": dashboard_data["summary"],
         "semgrep_results": semgrep_results,
         "custom_results": custom_results,
-<<<<<<< HEAD
         "secret_results": secret_results
-=======
         "ai_explanations": ai_explanations,
         "secret_results": secret_results
     }
@@ -124,5 +116,4 @@ def review_pr(data: PRReviewRequest):
         "status": "success",
         "total_issues": len(findings),
         "findings": ai_review
->>>>>>> 0b108c556266f846c2213b0dac16da52b5e3243b
     }
