@@ -1,0 +1,7 @@
+fastapi
+pydantic
+GitPython
+semgrep
+uvicorn
+google-genai
+python-dotenv
